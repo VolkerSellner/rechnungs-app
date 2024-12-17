@@ -4,6 +4,8 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const fileUpload = require("express-fileupload")
+const XLSX = require("xlsx")
 
 //Instanz von Express erstellen, um später Anfragen zu verarbeiten
 const app = express();
@@ -14,11 +16,43 @@ const PORT = 3001;
 app.use(express.json());
 //CORS aktivieren, um Anfragen von alles Ursprüngen zu erlauben
 app.use(cors());
+//fileUpload
+app.use(fileUpload());
 
 //MongoDB Verbindung erstellen
 mongoose.connect("mongodb://localhost:27017/rechnungsapp")
 .then(()=>console.log("MongoDB verbunden"))
 .catch((err)=>console.log("MongoDB-Verbindungsfehler", err));
+
+// Datenbank-Modell für Kunden
+const Customer = mongoose.model("Customer", {
+    firstName: String,
+    lastName: String,
+    email: String,
+});
+
+// API-Route zum Hochladen und Verarbeiten der Excel-Datei
+app.post("/import-excel", async (req, res) => {
+    try {
+        if (!req.files || !req.files.file) {
+            return res.status(400).send("Keine Datei hochgeladen.");
+        }
+
+        // Excel-Datei verarbeiten
+        const excelFile = req.files.file;
+        const workbook = XLSX.read(excelFile.data, { type: "buffer" });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const data = XLSX.utils.sheet_to_json(sheet);
+
+        // Daten in MongoDB speichern
+        const customers = await Customer.insertMany(data);
+        res.status(200).json({ message: "Daten erfolgreich importiert", customers });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Fehler beim Verarbeiten der Datei.");
+    }
+});
 
 //test-route (get route)
 app.get("/", (req, res) => {
