@@ -19,8 +19,9 @@ app.use(cors());
 //fileUpload
 app.use(fileUpload());
 
+
 //MongoDB Verbindung erstellen
-mongoose.connect("mongodb://localhost:27017/rechnungsapp")
+mongoose.connect("mongodb://mongodb:27017/rechnungsapp")
 .then(()=>console.log("MongoDB verbunden"))
 .catch((err)=>console.log("MongoDB-Verbindungsfehler", err));
 
