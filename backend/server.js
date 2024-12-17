@@ -32,7 +32,7 @@ const Customer = mongoose.model("Customer", {
     email: String,
 });
 
-// API-Route zum Hochladen und Verarbeiten der Excel-Datei
+// Post: API-Route zum Hochladen und Verarbeiten der Excel-Datei
 app.post("/import-excel", async (req, res) => {
     try {
         if (!req.files || !req.files.file) {
@@ -55,12 +55,23 @@ app.post("/import-excel", async (req, res) => {
     }
 });
 
+// Route zum Abrufen der Kundendaten
+app.get("/customers", async (req, res) => {
+    try {
+        const customers = await Customer.find(); // Alle Kunden aus der Datenbank abrufen
+        res.status(200).json(customers);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Fehler beim Abrufen der Daten.");
+    }
+});
+
 //test-route (get route)
 app.get("/", (req, res) => {
     res.send("Backend läuft")
 })
 
 //Server Starten
-app.listen(PORT, ()=>{
-    console.log(`Server läuft auf http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server läuft auf http://0.0.0.0:${PORT}`);
 });

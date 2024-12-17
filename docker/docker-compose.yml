@@ -1,22 +1,20 @@
-version: '3.8'
-
 services:
   backend:
     build: ../backend
     ports:
-      - "3001:3001"
+      - "3001:3001" # Port auf Host-Rechner weiterleiten
     volumes:
       - ../backend:/usr/src/app
-    depends_on:
-      - mongodb
     environment:
       - MONGODB_URI=mongodb://mongodb:27017/rechnungsapp
+    depends_on:
+      - mongodb
 
   mongodb:
     image: mongo
     container_name: mongodb-container
     ports:
-      - "27017:27017"
+      - "27017:27017" # MongoDB-Port
     volumes:
       - mongodb-data:/data/db
 
