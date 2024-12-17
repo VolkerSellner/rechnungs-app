@@ -17,5 +17,5 @@ COPY . .
 EXPOSE 3001
 
 #Startbefehl dür das Backend
-CMD["node", "server.js"]
+CMD ["node", "server.js"]
 
