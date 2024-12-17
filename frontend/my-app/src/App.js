@@ -1,28 +1,39 @@
-//Importieren der Module
-//useState: um Zustand in der Komponene zu speichern
-//useEffect: um Code auszuführen, wenn die Komponente geladen wird
-import React, {useState, useEffect} from "react";
-//axios: Bib, um HTTP Anfragen zu senden
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-function App(){
-    //Zustand für die Nachricht erstellen
-//message: Enthält die Nachricht vom Backend
-//setMessage: Funktion um die message zu ändern
-    const[message, setMessage] = useState("");
-  //HTTP Anfrage an das Backend senden
-  useEffect(() => {
-    axios.get("http://localhost:3001/")
-        .then((response)=>setMessage(response.data))
-        .catch((error)=>console.error("Fehler:", error));
-  }, []);
 
-  return (
-      <div>
-        <h1>React Frontend</h1>
-        <p>Nachricht vom Backend: {message}</p>
-      </div>
-  );
+function App() {
+    const [customers, setCustomers] = useState([]); // Zustand für Kundendaten
+    const [error, setError] = useState("");
+
+    // Funktion, um Kundendaten vom Backend zu holen
+    const fetchCustomers = async () => {
+        try {
+            const response = await axios.get("http://localhost:3001/customers");
+            setCustomers(response.data); // Daten in den Zustand speichern
+        } catch (err) {
+            setError("Fehler beim Laden der Kundendaten.");
+            console.error(err);
+        }
+    };
+
+    // useEffect: Lädt Kundendaten, sobald die Komponente geladen wird
+    useEffect(() => {
+        fetchCustomers();
+    }, []);
+
+    return (
+        <div>
+            <h1>Kundenliste</h1>
+            {error && <p style={{ color: "red" }}>{error}</p>}
+            <ul>
+                {customers.map((customer, index) => (
+                    <li key={index}>
+                        {customer.firstName} {customer.lastName} - {customer.email}
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
 }
-
 
 export default App;
