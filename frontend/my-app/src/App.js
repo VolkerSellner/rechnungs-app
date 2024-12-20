@@ -1,37 +1,57 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 
 function App() {
-    const [customers, setCustomers] = useState([]); // Zustand für Kundendaten
-    const [error, setError] = useState("");
+    const [file, setFile] = useState(null); // Zustand für die ausgewählte Datei
+    const [message, setMessage] = useState(""); // Nachricht nach dem Upload
+    const [error, setError] = useState(""); // Fehlernachricht
 
-    // Funktion, um Kundendaten vom Backend zu holen
-    const fetchCustomers = async () => {
+    // Funktion, um die Datei im Zustand zu speichern
+    const handleFileChange = (event) => {
+        setFile(event.target.files[0]); // Die erste Datei im Input-Feld speichern
+    };
+
+    // Funktion, um die Datei hochzuladen
+    const handleFileUpload = async (event) => {
+        event.preventDefault(); // Verhindert das Neuladen der Seite
+
+        if (!file) {
+            setError("Bitte wählen Sie eine Datei aus.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+
         try {
-            const response = await axios.get("http://localhost:3001/customers");
-            setCustomers(response.data); // Daten in den Zustand speichern
+            const response = await axios.post("http://localhost:3001/import-excel", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+            setMessage("Datei erfolgreich hochgeladen!"); // Erfolgsmeldung
+            setError(""); // Fehler zurücksetzen
         } catch (err) {
-            setError("Fehler beim Laden der Kundendaten.");
             console.error(err);
+            setError("Fehler beim Hochladen der Datei.");
+            setMessage(""); // Erfolgsmeldung zurücksetzen
         }
     };
 
-    // useEffect: Lädt Kundendaten, sobald die Komponente geladen wird
-    useEffect(() => {
-        fetchCustomers();
-    }, []);
-
     return (
-        <div>
-            <h1>Kundenliste</h1>
+        <div style={{ textAlign: "center", padding: "20px" }}>
+            <h1>Willkommen! Laden Sie Ihre Rechnung hoch</h1>
+            <form onSubmit={handleFileUpload}>
+                <input
+                    type="file"
+                    onChange={handleFileChange}
+                    accept=".xlsx, .xls" // Nur Excel-Dateien erlauben
+                    style={{ margin: "10px 0" }}
+                />
+                <button type="submit">Durchsuchen...</button>
+            </form>
+            {message && <p style={{ color: "green" }}>{message}</p>}
             {error && <p style={{ color: "red" }}>{error}</p>}
-            <ul>
-                {customers.map((customer, index) => (
-                    <li key={index}>
-                        {customer.firstName} {customer.lastName} - {customer.email}
-                    </li>
-                ))}
-            </ul>
         </div>
     );
 }
