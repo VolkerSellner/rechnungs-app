@@ -48,7 +48,7 @@ function App() {
                     accept=".xlsx, .xls" // Nur Excel-Dateien erlauben
                     style={{ margin: "10px 0" }}
                 />
-                <button type="submit">Durchsuchen...</button>
+                <button type="submit">Hochladen...</button>
             </form>
             {message && <p style={{ color: "green" }}>{message}</p>}
             {error && <p style={{ color: "red" }}>{error}</p>}
